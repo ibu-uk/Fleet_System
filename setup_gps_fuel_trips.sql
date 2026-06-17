@@ -1,10 +1,10 @@
 -- ============================================================
---  Fleet Management — GPS, Fuel & Trips Enhancement
+--  Fleet System — GPS, Fuel & Trips Enhancement
 --  Run this AFTER setup.sql, setup_v2.sql, and setup_services_v3.sql
 --  Adds: GPS tracking, fuel management, trip management
 -- ============================================================
 
-USE `Fleet_management`;
+USE `fleet_System`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -158,29 +158,66 @@ CREATE TABLE IF NOT EXISTS `trip_expenses` (
 -- FOREIGN KEYS
 -- ------------------------------------------------------------
 
+-- Helper procedure to add foreign key only if it doesn't exist
+DELIMITER $$
+DROP PROCEDURE IF EXISTS add_fk_if_not_exists$$
+CREATE PROCEDURE add_fk_if_not_exists(
+  IN p_table VARCHAR(64),
+  IN p_constraint VARCHAR(64),
+  IN p_sql TEXT
+)
+BEGIN
+  DECLARE fk_count INT;
+  SELECT COUNT(*) INTO fk_count
+  FROM information_schema.table_constraints
+  WHERE table_schema = DATABASE()
+    AND table_name = p_table
+    AND constraint_name = p_constraint
+    AND constraint_type = 'FOREIGN KEY';
+  
+  IF fk_count = 0 THEN
+    SET @sql = p_sql;
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+  END IF;
+END$$
+DELIMITER ;
+
 -- GPS Tracking Foreign Keys
-ALTER TABLE `vehicle_locations`
-  ADD CONSTRAINT `fk_loc_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE;
+CALL add_fk_if_not_exists('vehicle_locations', 'fk_loc_vehicle',
+  'ALTER TABLE `vehicle_locations` ADD CONSTRAINT `fk_loc_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE');
 
-ALTER TABLE `vehicle_routes`
-  ADD CONSTRAINT `fk_route_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_route_trip` FOREIGN KEY (`trip_id`) REFERENCES `trips`(`id`) ON DELETE SET NULL;
+CALL add_fk_if_not_exists('vehicle_routes', 'fk_route_vehicle',
+  'ALTER TABLE `vehicle_routes` ADD CONSTRAINT `fk_route_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE');
 
-ALTER TABLE `geofence_events`
-  ADD CONSTRAINT `fk_geofence_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_geofence_geofence` FOREIGN KEY (`geofence_id`) REFERENCES `geofences`(`id`) ON DELETE CASCADE;
+CALL add_fk_if_not_exists('vehicle_routes', 'fk_route_trip',
+  'ALTER TABLE `vehicle_routes` ADD CONSTRAINT `fk_route_trip` FOREIGN KEY (`trip_id`) REFERENCES `trips`(`id`) ON DELETE SET NULL');
+
+CALL add_fk_if_not_exists('geofence_events', 'fk_geofence_vehicle',
+  'ALTER TABLE `geofence_events` ADD CONSTRAINT `fk_geofence_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE');
+
+CALL add_fk_if_not_exists('geofence_events', 'fk_geofence_geofence',
+  'ALTER TABLE `geofence_events` ADD CONSTRAINT `fk_geofence_geofence` FOREIGN KEY (`geofence_id`) REFERENCES `geofences`(`id`) ON DELETE CASCADE');
 
 -- Fuel Management Foreign Keys
-ALTER TABLE `fuel_records`
-  ADD CONSTRAINT `fk_fuel_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_fuel_driver` FOREIGN KEY (`driver_id`) REFERENCES `employees`(`id`) ON DELETE SET NULL;
+CALL add_fk_if_not_exists('fuel_records', 'fk_fuel_vehicle',
+  'ALTER TABLE `fuel_records` ADD CONSTRAINT `fk_fuel_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE');
+
+CALL add_fk_if_not_exists('fuel_records', 'fk_fuel_driver',
+  'ALTER TABLE `fuel_records` ADD CONSTRAINT `fk_fuel_driver` FOREIGN KEY (`driver_id`) REFERENCES `employees`(`id`) ON DELETE SET NULL');
 
 -- Trip Management Foreign Keys
-ALTER TABLE `trips`
-  ADD CONSTRAINT `fk_trip_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_trip_driver` FOREIGN KEY (`driver_id`) REFERENCES `employees`(`id`) ON DELETE CASCADE;
+CALL add_fk_if_not_exists('trips', 'fk_trip_vehicle',
+  'ALTER TABLE `trips` ADD CONSTRAINT `fk_trip_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles`(`id`) ON DELETE CASCADE');
 
-ALTER TABLE `trip_expenses`
-  ADD CONSTRAINT `fk_expense_trip` FOREIGN KEY (`trip_id`) REFERENCES `trips`(`id`) ON DELETE CASCADE;
+CALL add_fk_if_not_exists('trips', 'fk_trip_driver',
+  'ALTER TABLE `trips` ADD CONSTRAINT `fk_trip_driver` FOREIGN KEY (`driver_id`) REFERENCES `employees`(`id`) ON DELETE CASCADE');
+
+CALL add_fk_if_not_exists('trip_expenses', 'fk_expense_trip',
+  'ALTER TABLE `trip_expenses` ADD CONSTRAINT `fk_expense_trip` FOREIGN KEY (`trip_id`) REFERENCES `trips`(`id`) ON DELETE CASCADE');
+
+-- Clean up helper procedure
+DROP PROCEDURE IF EXISTS add_fk_if_not_exists;
 
 SET FOREIGN_KEY_CHECKS = 1;
