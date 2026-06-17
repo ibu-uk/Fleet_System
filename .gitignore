@@ -1,0 +1,34 @@
+# Database backups
+*.sql
+!setup.sql
+!setup_v2.sql
+!setup_services_v3.sql
+!setup_users.sql
+!setup_users_update.sql
+!setup_gps_fuel_trips.sql
+!setup_accounting.sql
+!setup_orders_bonus.sql
+!optimize_indexes.sql
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# XAMPP/Server config
+php.ini
+my.ini
+httpd.conf

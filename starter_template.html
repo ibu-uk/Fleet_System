@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<!--
+  ================================================================
+  STARTER TEMPLATE — Operations Command Center Theme
+  Cloned from Fleet Management System
+  ----------------------------------------------------------------
+  Stack:  Bootstrap 5.3.2 · Font Awesome 6.5 · Google Fonts
+  Fonts:  Syne (EN) · Cairo (AR) · Oxanium (numbers) · JetBrains Mono (labels)
+  Theme:  Dark ink sidebar · Warm white workspace · Amber accent
+  ================================================================
+-->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My App — Dashboard</title>
+
+<!-- Bootstrap 5.3.2 LTR (swap with bootstrap.rtl.min.css for Arabic) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<!-- Font Awesome 6.5 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Oxanium:wght@700;800&family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   DESIGN TOKENS
+   ================================================================ */
+:root {
+  /* Sidebar (dark ink) */
+  --ink:          #0c0f13;
+  --ink2:         #161b23;
+  --ink3:         #1e2633;
+  --ink4:         #2a3545;
+
+  /* Accent */
+  --amber:        #f59e0b;
+  --amber2:       #d97706;
+  --amber-glow:   rgba(245,158,11,.15);
+
+  /* Content area */
+  --bg:           #f4f6f9;
+  --surface:      #ffffff;
+  --border:       #e4e9f0;
+  --border2:      #d0d8e4;
+  --text:         #1a2233;
+  --text2:        #4a5568;
+  --slate:        #8899aa;
+  --dim:          #4a5568;
+
+  /* Status */
+  --green:        #059669;
+  --red:          #dc2626;
+  --blue:         #2563eb;
+  --teal:         #0891b2;
+  --cyan:         #06b6d4;
+  --purple:       #7c3aed;
+  --yellow:       #b45309;
+
+  /* Layout */
+  --sidebar-w:    264px;
+  --topbar-h:     58px;
+  --radius:       10px;
+}
+
+/* ================================================================
+   RESET & BASE
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(245,158,11,.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 50%);
+  font-family: 'Syne', 'Cairo', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+/* Arabic override — add class="ar" to <body> and change dir="rtl" on <html> */
+body.ar { font-family: 'Cairo', sans-serif; }
+
+/* ================================================================
+   SIDEBAR — Command Rail
+   ================================================================ */
+#sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--ink);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent, transparent 40px,
+    rgba(255,255,255,.012) 40px, rgba(255,255,255,.012) 41px
+  );
+}
+/* RTL: change left→right above and add: */
+/* [dir="rtl"] #sidebar { left: auto; right: 0; } */
+
+/* Brand */
+#sidebar .brand {
+  padding: 22px 18px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  text-decoration: none;
+  display: block;
+}
+#sidebar .brand-logo { display: flex; align-items: center; gap: 12px; }
+#sidebar .brand-icon {
+  width: 44px; height: 44px;
+  background: var(--amber);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--ink); flex-shrink: 0;
+  box-shadow: 0 0 20px var(--amber-glow), 0 4px 12px rgba(0,0,0,.3);
+  transition: box-shadow .2s;
+}
+#sidebar .brand:hover .brand-icon { box-shadow: 0 0 30px rgba(245,158,11,.3), 0 4px 16px rgba(0,0,0,.4); }
+#sidebar .brand-text {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 800; font-size: 14.5px; color: #fff;
+  line-height: 1.25; letter-spacing: .3px;
+}
+#sidebar .brand-sub {
+  font-size: 10.5px; color: var(--dim);
+  font-weight: 400; margin-top: 1px;
+  font-family: 'Syne', sans-serif;
+}
+
+/* Nav sections */
+#sidebar .nav-section {
+  padding: 14px 18px 4px;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+#sidebar .nav-item a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px 9px 18px;
+  color: var(--slate);
+  text-decoration: none;
+  font-size: 13px; font-weight: 600;
+  transition: color .15s, background .15s;
+  position: relative;
+  border-left: 2px solid transparent;
+  margin: 1px 0;
+}
+/* RTL: border-left → border-right */
+#sidebar .nav-item a::before {
+  content: ''; position: absolute; inset: 0;
+  background: transparent; transition: background .15s;
+}
+#sidebar .nav-item a:hover { color: #fff; border-left-color: var(--ink4); }
+#sidebar .nav-item a:hover::before { background: rgba(255,255,255,.04); }
+#sidebar .nav-item a.active { color: var(--amber); border-left-color: var(--amber); font-weight: 700; }
+#sidebar .nav-item a.active::before { background: var(--amber-glow); }
+#sidebar .nav-item a .nav-icon {
+  width: 18px; text-align: center;
+  font-size: 13px; flex-shrink: 0; opacity: .7;
+  transition: opacity .15s;
+}
+#sidebar .nav-item a.active .nav-icon,
+#sidebar .nav-item a:hover .nav-icon { opacity: 1; }
+
+/* Alert badge (red pill on nav items) */
+#sidebar .nav-item a .alert-badge {
+  margin-left: auto;
+  background: var(--red); color: white;
+  font-size: 9.5px; font-weight: 700;
+  padding: 2px 6px; border-radius: 20px;
+  min-width: 20px; text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  animation: pulse-badge 2s infinite;
+}
+@keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+/* Sidebar footer */
+#sidebar .sidebar-footer {
+  margin-top: auto; padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex; flex-direction: column; gap: 8px;
+}
+#sidebar .lang-row { display: flex; gap: 6px; }
+#sidebar .lang-btn {
+  flex: 1; text-align: center; padding: 7px 6px;
+  border-radius: 7px; background: var(--ink2);
+  color: var(--slate); text-decoration: none;
+  font-size: 11.5px; font-weight: 700;
+  transition: all .15s; letter-spacing: .5px;
+  border: 1px solid rgba(255,255,255,.05);
+}
+#sidebar .lang-btn.active { background: var(--amber); color: var(--ink); border-color: var(--amber); }
+#sidebar .lang-btn:hover:not(.active) { background: var(--ink3); color: #fff; }
+#sidebar .version-tag {
+  text-align: center; font-size: 10px;
+  color: var(--dim); font-family: 'JetBrains Mono', monospace;
+}
+
+/* ================================================================
+   MAIN AREA
+   ================================================================ */
+#main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+/* RTL: margin-left → margin-right */
+
+/* ================================================================
+   TOPBAR
+   ================================================================ */
+#topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: var(--topbar-h);
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100;
+  background-image: radial-gradient(circle, rgba(0,0,0,.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: var(--surface);
+}
+#topbar .page-title {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 800; font-size: 17px; color: var(--ink);
+  display: flex; align-items: center; gap: 9px;
+  letter-spacing: .2px; text-transform: uppercase;
+}
+#topbar .page-title .title-icon { color: var(--amber2); font-size: 15px; }
+#topbar .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+/* RTL: margin-left → margin-right */
+#topbar .date-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text2);
+  background: var(--bg); padding: 5px 12px;
+  border-radius: 20px; border: 1px solid var(--border); letter-spacing: .3px;
+}
+#topbar .topbar-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 12.5px; font-weight: 700;
+  padding: 7px 14px; border-radius: 7px;
+  background: var(--amber); color: var(--ink);
+  border: none; text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+  transition: background .15s, transform .1s; letter-spacing: .3px;
+}
+#topbar .topbar-btn:hover { background: var(--amber2); transform: translateY(-1px); color: var(--ink); }
+
+/* ================================================================
+   CONTENT
+   ================================================================ */
+#content { padding: 26px 28px; flex: 1; }
+
+/* ================================================================
+   KPI CARDS
+   ================================================================ */
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 18px 18px;
+  position: relative; overflow: hidden;
+  transition: transform .2s cubic-bezier(.4,0,.2,1), box-shadow .2s, border-color .2s;
+  animation: kpi-in .4s cubic-bezier(.4,0,.2,1) both;
+}
+.kpi-card:nth-child(1){animation-delay:.04s} .kpi-card:nth-child(2){animation-delay:.08s}
+.kpi-card:nth-child(3){animation-delay:.12s} .kpi-card:nth-child(4){animation-delay:.16s}
+.kpi-card:nth-child(5){animation-delay:.20s} .kpi-card:nth-child(6){animation-delay:.24s}
+@keyframes kpi-in { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.09); }
+.kpi-card::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 4px;
+  border-radius: 4px 0 0 4px; transition: width .2s;
+}
+/* RTL: left→right */
+.kpi-card:hover::before { width: 6px; }
+.kpi-blue::before   { background: #2563eb; }
+.kpi-orange::before { background: var(--amber); }
+.kpi-green::before  { background: #059669; }
+.kpi-teal::before   { background: #0891b2; }
+.kpi-cyan::before   { background: #06b6d4; }
+.kpi-yellow::before { background: #d97706; }
+.kpi-red::before    { background: #dc2626; }
+.kpi-purple::before { background: #7c3aed; }
+.kpi-blue:hover   { border-color:rgba(37,99,235,.3);   background:rgba(37,99,235,.02); }
+.kpi-orange:hover { border-color:rgba(245,158,11,.3);  background:rgba(245,158,11,.02); }
+.kpi-green:hover  { border-color:rgba(5,150,105,.3);   background:rgba(5,150,105,.02); }
+.kpi-teal:hover   { border-color:rgba(8,145,178,.3);   background:rgba(8,145,178,.02); }
+.kpi-red:hover    { border-color:rgba(220,38,38,.3);   background:rgba(220,38,38,.02); }
+.kpi-purple:hover { border-color:rgba(124,58,237,.3);  background:rgba(124,58,237,.02); }
+.kpi-card .kpi-icon {
+  font-size: 26px; position: absolute;
+  top: 14px; right: 16px; opacity: .08;
+  transition: opacity .2s, transform .2s;
+}
+/* RTL: right→left */
+.kpi-card:hover .kpi-icon { opacity: .14; transform: scale(1.1) rotate(-5deg); }
+.kpi-card .kpi-val {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 34px; font-weight: 800;
+  line-height: 1; color: var(--ink); letter-spacing: -1px;
+}
+.kpi-card .kpi-lbl {
+  font-size: 11px; color: var(--text2); margin-top: 5px;
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: .8px; font-family: 'JetBrains Mono', monospace;
+}
+
+/* ================================================================
+   CARDS
+   ================================================================ */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.card-header { background: var(--surface); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; padding: 13px 18px; color: var(--ink); font-family: 'Syne', sans-serif; }
+.card-footer { background: #fafbfc; border-top: 1px solid var(--border); padding: 8px 16px; }
+
+/* ================================================================
+   TABLES
+   ================================================================ */
+.table { font-size: 13px; }
+.table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: .8px; font-weight: 600;
+  color: #fff; padding: 11px 14px;
+  white-space: nowrap; border: none;
+}
+.table-dark th { background: var(--ink) !important; border-bottom: 2px solid var(--amber) !important; }
+.table td { vertical-align: middle; padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+.table tbody tr { transition: background .1s; }
+.table tbody tr:hover td { background: rgba(245,158,11,.04); }
+
+/* ================================================================
+   BADGES
+   ================================================================ */
+.badge { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: .3px; font-family: 'Syne', sans-serif; }
+
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+.btn { font-family: 'Syne', sans-serif; font-weight: 700; letter-spacing: .3px; border-radius: 7px; transition: all .15s cubic-bezier(.4,0,.2,1); }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-success { background: var(--green);  border-color: var(--green); }
+.btn-primary { background: var(--blue);   border-color: var(--blue); }
+.btn-warning { background: var(--amber);  border-color: var(--amber); color: var(--ink); }
+.btn-danger  { background: var(--red);    border-color: var(--red); }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 5px; }
+
+/* ================================================================
+   FORMS
+   ================================================================ */
+.form-control, .form-select { font-family: 'Syne', sans-serif; font-size: 13px; border-color: var(--border2); border-radius: 7px; }
+.form-control:focus, .form-select:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
+.form-label { font-size: 12px; font-weight: 700; color: var(--text2); letter-spacing: .3px; font-family: 'Syne', sans-serif; margin-bottom: 4px; }
+
+/* ================================================================
+   MODALS
+   ================================================================ */
+.modal-header { border-bottom: none; padding: 18px 20px 10px; }
+.modal-title { font-family: 'Oxanium', sans-serif; font-weight: 800; font-size: 16px; letter-spacing: .3px; }
+.modal-body { padding: 16px 20px; }
+.modal-footer { border-top: 1px solid var(--border); padding: 12px 20px; }
+
+/* ================================================================
+   FLASH MESSAGES
+   ================================================================ */
+.flash-bar {
+  border-radius: 8px; padding: 11px 16px; margin-bottom: 18px;
+  font-weight: 600; display: flex; align-items: center; gap: 9px;
+  font-size: 13.5px;
+  animation: flash-slide .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes flash-slide { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+#sidebarToggle {
+  display: none; background: var(--amber); border: none;
+  width: 40px; height: 40px; border-radius: 8px;
+  align-items: center; justify-content: center;
+  font-size: 16px; color: var(--ink); cursor: pointer; font-weight: 700;
+}
+#sidebarOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1039; }
+#sidebarOverlay.show { display:block; }
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { transform: translateX(-100%); width: 264px; }
+  #sidebar.open { transform: translateX(0); }
+  #sidebarToggle { display: flex; }
+  #main { margin: 0 !important; }
+  #content { padding: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================================================================
+     SIDEBAR
+     ================================================================ -->
+<nav id="sidebar">
+
+  <!-- Brand -->
+  <a href="#" class="brand">
+    <div class="brand-logo">
+      <div class="brand-icon"><i class="fas fa-layer-group"></i></div>
+      <div>
+        <div class="brand-text">MY APPLICATION</div>
+        <div class="brand-sub">Management System</div>
+      </div>
+    </div>
+  </a>
+
+  <!-- Nav group 1 -->
+  <div class="nav-section">Main</div>
+  <div class="nav-item">
+    <a href="#" class="active">
+      <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+    </a>
+  </div>
+  <div class="nav-item">
+    <a href="#">
+      <span class="nav-icon"><i class="fas fa-table"></i></span> Records
+      <span class="alert-badge">3</span>
+    </a>
+  </div>
+
+  <!-- Nav group 2 -->
+  <div class="nav-section">Management</div>
+  <div class="nav-item">
+    <a href="#">
+      <span class="nav-icon"><i class="fas fa-users"></i></span> Users
+    </a>
+  </div>
+  <div class="nav-item">
+    <a href="#">
+      <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Reports
+    </a>
+  </div>
+  <div class="nav-item">
+    <a href="#">
+      <span class="nav-icon"><i class="fas fa-cog"></i></span> Settings
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="lang-row">
+      <a href="#" class="lang-btn active">🇬🇧 EN</a>
+      <a href="#" class="lang-btn">🇰🇼 AR</a>
+    </div>
+    <div class="version-tag">MY APP · v1.0</div>
+  </div>
+
+</nav>
+<div id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('show')"></div>
+
+<!-- ================================================================
+     MAIN
+     ================================================================ -->
+<div id="main">
+
+  <!-- Topbar -->
+  <div id="topbar">
+    <button id="sidebarToggle" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show')">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <span class="title-icon"><i class="fas fa-tachometer-alt"></i></span>
+      Dashboard
+    </div>
+    <div class="topbar-right">
+      <span class="date-chip" id="dateChip"></span>
+      <a href="#" class="topbar-btn">
+        <i class="fas fa-plus"></i> Add New
+      </a>
+      <a href="#" class="topbar-btn" style="background:var(--ink3);color:#fff;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+
+    <!-- Flash message example (remove if not needed) -->
+    <div class="flash-bar alert alert-success">
+      <i class="fas fa-check-circle"></i> Record saved successfully.
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-blue">
+          <i class="fas fa-box kpi-icon"></i>
+          <div class="kpi-val">124</div>
+          <div class="kpi-lbl">Total Records</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-green">
+          <i class="fas fa-check-circle kpi-icon"></i>
+          <div class="kpi-val">98</div>
+          <div class="kpi-lbl">Active</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-orange">
+          <i class="fas fa-clock kpi-icon"></i>
+          <div class="kpi-val">14</div>
+          <div class="kpi-lbl">Pending</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-red">
+          <i class="fas fa-exclamation-triangle kpi-icon"></i>
+          <div class="kpi-val">5</div>
+          <div class="kpi-lbl">Issues</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter bar + Table -->
+    <div class="card mb-4">
+      <div class="card-body py-2">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <input class="form-control form-control-sm" placeholder="Search anything...">
+          </div>
+          <div class="col-auto">
+            <select class="form-select form-select-sm">
+              <option>All Status</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+          </div>
+          <div class="col-auto"><button class="btn btn-sm btn-primary">Filter</button></div>
+          <div class="col-auto ms-auto">
+            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#addModal">
+              <i class="fas fa-plus me-1"></i> Add Record
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><strong>Sample Record</strong></td>
+              <td>Category A</td>
+              <td>2026-06-07</td>
+              <td><span style="font-family:'JetBrains Mono',monospace">KWD 250.000</span></td>
+              <td><span class="badge bg-success">Active</span></td>
+              <td>
+                <button class="btn btn-xs btn-outline-info"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-xs btn-outline-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><strong>Another Record</strong></td>
+              <td>Category B</td>
+              <td>2026-06-06</td>
+              <td><span style="font-family:'JetBrains Mono',monospace">KWD 180.500</span></td>
+              <td><span class="badge bg-warning text-dark">Pending</span></td>
+              <td>
+                <button class="btn btn-xs btn-outline-info"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-xs btn-outline-primary"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer text-muted small">2 total records</div>
+    </div>
+
+  </div><!-- #content -->
+</div><!-- #main -->
+
+<!-- ================================================================
+     ADD/EDIT MODAL EXAMPLE
+     ================================================================ -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Add New Record</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name *</label>
+            <input class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Category</label>
+            <select class="form-select">
+              <option>Category A</option>
+              <option>Category B</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Amount (KWD)</label>
+            <input type="number" step="0.001" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select class="form-select">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Live date in topbar
+  const d = new Date();
+  document.getElementById('dateChip').textContent =
+    d.toLocaleDateString('en-GB', {weekday:'short', year:'numeric', month:'short', day:'numeric'});
+</script>
+</body>
+</html>
