@@ -1,11 +1,11 @@
 -- ============================================================
---  Fleet Management — Order Tracking, Driver Bonus & Petrol Cards
+--  Fleet System — Order Tracking, Driver Bonus & Petrol Cards
 --  Run this AFTER all other setup_*.sql files
 --  Adds: daily order tracking, configurable monthly bonus policy,
 --        per-driver petrol card assignment & fuel utilisation
 -- ============================================================
 
-USE `Fleet_management`;
+USE `fleet_System`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -31,12 +31,37 @@ ON DUPLICATE KEY UPDATE `setting_key` = `setting_key`;
 -- ------------------------------------------------------------
 -- Per-driver columns on employees
 -- ------------------------------------------------------------
--- Note: IF NOT EXISTS not supported in older MySQL versions.
--- These will fail silently if columns already exist.
-ALTER TABLE `employees`
-  ADD COLUMN `bonus_eligible`       TINYINT(1)  DEFAULT 0  COMMENT '1 = driver qualifies for monthly bonus',
-  ADD COLUMN `monthly_order_target` INT         DEFAULT NULL COMMENT 'Per-driver override of global target',
-  ADD COLUMN `petrol_card_number`   VARCHAR(50) DEFAULT NULL COMMENT 'Fuel card assigned to driver';
+-- Helper procedure to add column only if it doesn't exist
+DELIMITER $$
+DROP PROCEDURE IF EXISTS add_column_if_not_exists$$
+CREATE PROCEDURE add_column_if_not_exists(
+  IN p_table VARCHAR(64),
+  IN p_column VARCHAR(64),
+  IN p_definition TEXT
+)
+BEGIN
+  DECLARE col_count INT;
+  SELECT COUNT(*) INTO col_count
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = p_table
+    AND column_name = p_column;
+  
+  IF col_count = 0 THEN
+    SET @sql = CONCAT('ALTER TABLE `', p_table, '` ADD COLUMN `', p_column, '` ', p_definition);
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+  END IF;
+END$$
+DELIMITER ;
+
+CALL add_column_if_not_exists('employees', 'bonus_eligible', 'TINYINT(1) DEFAULT 0 COMMENT ''1 = driver qualifies for monthly bonus''');
+CALL add_column_if_not_exists('employees', 'monthly_order_target', 'INT DEFAULT NULL COMMENT ''Per-driver override of global target''');
+CALL add_column_if_not_exists('employees', 'petrol_card_number', 'VARCHAR(50) DEFAULT NULL COMMENT ''Fuel card assigned to driver''');
+
+-- Clean up helper procedure
+DROP PROCEDURE IF EXISTS add_column_if_not_exists;
 
 -- ------------------------------------------------------------
 -- Daily driver orders
@@ -82,8 +107,35 @@ CREATE TABLE IF NOT EXISTS `driver_bonuses` (
 -- Petrol card number on fuel records (preserves history even if
 -- the card is later reassigned to another driver)
 -- ------------------------------------------------------------
-ALTER TABLE `fuel_records`
-  ADD COLUMN `card_number` VARCHAR(50) DEFAULT NULL COMMENT 'Petrol card used for this purchase';
+-- Helper procedure to add column only if it doesn't exist
+DELIMITER $$
+DROP PROCEDURE IF EXISTS add_column_if_not_exists$$
+CREATE PROCEDURE add_column_if_not_exists(
+  IN p_table VARCHAR(64),
+  IN p_column VARCHAR(64),
+  IN p_definition TEXT
+)
+BEGIN
+  DECLARE col_count INT;
+  SELECT COUNT(*) INTO col_count
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = p_table
+    AND column_name = p_column;
+  
+  IF col_count = 0 THEN
+    SET @sql = CONCAT('ALTER TABLE `', p_table, '` ADD COLUMN `', p_column, '` ', p_definition);
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+  END IF;
+END$$
+DELIMITER ;
+
+CALL add_column_if_not_exists('fuel_records', 'card_number', 'VARCHAR(50) DEFAULT NULL COMMENT ''Petrol card used for this purchase''');
+
+-- Clean up helper procedure
+DROP PROCEDURE IF EXISTS add_column_if_not_exists;
 
 -- ------------------------------------------------------------
 -- FOREIGN KEYS
